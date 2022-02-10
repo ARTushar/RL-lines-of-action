@@ -62,7 +62,16 @@ class LACEnv(gym.Env):
         random_to = np.random.randint(len(selected[1]))
         move_to = selected[1][random_to]
         action = self.move_to_action((move_from, move_to))
-        return action
+        return self.create_action_probs(action)
+
+    @staticmethod
+    def create_action_probs(action):
+        n = pow(LACEnv.grid_len, 4) - 1
+        action_prob = 0.9
+        other_prob = 0.1 / n
+        action_probs = [other_prob] * n
+        action_probs[action]  = action_prob
+        return action_probs
 
     @staticmethod
     def move_to_action(move: MOVE) -> int:
