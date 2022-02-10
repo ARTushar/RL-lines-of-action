@@ -31,9 +31,10 @@ class Game:
     def step(self, selected_pos, target_pos):
         is_valid_move = self.is_valid_move(self.board, selected_pos, target_pos, self.current_player)
         if not is_valid_move:
+            self.done = True
+            self.winner = self._get_opposition(self.current_player)
             return self.get_invalid_move_reward()
 
-        reward = None
         if self.current_player == self.first_player:
             self.update_board(selected_pos, target_pos)
             reward = self.get_score(self.board, self.first_player, self.second_player)
@@ -53,9 +54,23 @@ class Game:
 
         return reward
 
+    def print_board(self):
+        for row in self.board:
+            for val in row:
+                print(self.get_symbol(val), end=' ')
+            print()
+
+    @staticmethod
+    def get_symbol(val):
+        if val == -1:
+            return 'B'
+        if val == 1:
+            return 'W'
+        return 'E'
+
     @staticmethod
     def get_invalid_move_reward():
-        return -1000
+        return -10000
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
