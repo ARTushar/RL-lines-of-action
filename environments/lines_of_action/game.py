@@ -62,7 +62,7 @@ class Game:
                 self.opponent_reward = -reward
             else:
                 self.opponent_reward = self.get_winning_reward()
-                reward = -opponent_reward
+                reward = -self.opponent_reward
 
             self.done = True
 
