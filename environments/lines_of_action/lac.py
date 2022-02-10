@@ -54,6 +54,16 @@ class LACEnv(gym.Env):
         self.engine.print_board()
         print('--------------------------------------------------')
 
+    def get_random_action(self):
+        all_valid_moves = self.engine.get_all_current_player_moves()
+        random_pos = np.random.randint(len(all_valid_moves))
+        selected = all_valid_moves[random_pos]
+        move_from = selected[0]
+        random_to = np.random.randint(len(selected[1]))
+        move_to = selected[1][random_to]
+        action = self.move_to_action((move_from, move_to))
+        return action
+
     @staticmethod
     def move_to_action(move: MOVE) -> int:
         grid_len = LACEnv.grid_len

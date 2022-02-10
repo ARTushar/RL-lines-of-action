@@ -28,28 +28,42 @@ class Game:
         self.done = False
         self.winner = None
 
+        # If is needed to access
+        self.opponent_reward = None
+
     def step(self, selected_pos, target_pos):
         is_valid_move = self.is_valid_move(self.board, selected_pos, target_pos, self.current_player)
         if not is_valid_move:
             self.done = True
             self.winner = self._get_opposition(self.current_player)
-            return self.get_invalid_move_reward()
+            reward = self.get_invalid_move_reward()
+            self.opponent_reward = -reward
+            return reward
 
         if self.current_player == self.first_player:
             self.update_board(selected_pos, target_pos)
             reward = self.get_score(self.board, self.first_player, self.second_player)
+            self.opponent_reward = self.get_score(self.board, self.second_player, self.first_player)
 
             self.first_player_last_move = target_pos
             self.current_player = self.second_player
         else:
             self.update_board(selected_pos, target_pos)
             reward = self.get_score(self.board, self.second_player, self.first_player)
+            self.opponent_reward = self.get_score(self.board, self.first_player, self.second_player)
 
             self.second_player_last_move = target_pos
             self.current_player = self.first_player
 
         self.winner = self.get_winner()
         if self.winner is not None:
+            if self.winner == self.current_player:
+                reward = self.get_winning_reward()
+                self.opponent_reward = -reward
+            else:
+                self.opponent_reward = self.get_winning_reward()
+                reward = -opponent_reward
+
             self.done = True
 
         return reward
@@ -71,6 +85,10 @@ class Game:
     @staticmethod
     def get_invalid_move_reward():
         return -10000
+
+    @staticmethod
+    def get_winning_reward():
+        return 10000
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
