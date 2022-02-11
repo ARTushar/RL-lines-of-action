@@ -49,7 +49,6 @@ class LACEnv(gym.Env):
         else:
             current_player = '1' if self.engine.current_player == -1 else '2'
             print("It is Player {}'s turn".format(current_player))
-        print()
         print('--------------------------------------------------')
         self.engine.print_board()
         print('--------------------------------------------------')

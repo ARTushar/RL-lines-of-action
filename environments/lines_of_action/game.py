@@ -55,7 +55,7 @@ class Game:
             self.second_player_last_move = target_pos
             self.current_player = self.first_player
 
-        self.winner = self.get_winner()
+        self.winner = self.get_winner(self._get_opposition(self.current_player))
         if self.winner is not None:
             if self.winner == self.current_player:
                 reward = self.get_winning_reward()
@@ -92,7 +92,7 @@ class Game:
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
-        if board[move_from[0]][move_from[0]] != player_type:
+        if board[move_from[0]][move_from[1]] != player_type:
             return False
         valid_moves = Game.get_valid_moves(board, move_from[0], move_from[1])
         for move in valid_moves:
@@ -166,7 +166,7 @@ class Game:
             i += 1
             j -= 1
 
-        i, j = row-1, col-1
+        i, j = row-1, col+1
 
         while i >= 0 and j < len(board):
             right_diagonal_count += abs(board[i][j])
@@ -290,7 +290,7 @@ class Game:
         ]
 
         for test_row, test_col in test_positions:
-            if Game.is_valid_position(board, row, col) and board[test_row][test_col] == player_type:
+            if Game.is_valid_position(board, test_row, test_col) and board[test_row][test_col] == player_type:
                 neighbors.append((test_row, test_col))
         return neighbors
 
@@ -334,19 +334,18 @@ class Game:
                     total_cells += 1
         return total_cells
 
-    def get_winner(self):
+    def get_winner(self, player_type):
         board = self.board
-        if self.current_player == self.first_player:
+        if player_type == self.first_player:
             player_last_move = self.first_player_last_move
             opposition_last_move = self.second_player_last_move
         else:
-            player_last_move = self.first_player_last_move
-            opposition_last_move = self.second_player_last_move
+            player_last_move = self.second_player_last_move
+            opposition_last_move = self.first_player_last_move
 
         if player_last_move is None or opposition_last_move is None:
             return None
 
-        player_type = self.current_player
         opposition_type = Game._get_opposition(player_type)
 
         player_total_cells = Game.calculate_total_cells(board, player_type)
@@ -358,7 +357,7 @@ class Game:
         if Game.bfs(board, player_last_move[0], player_last_move[1]) == player_total_cells:
             return player_type
 
-        opposition_random_pos = None
+        opposition_random_pos = opposition_last_move
         if player_last_move == opposition_last_move:
             opposition_random_pos = Game.get_a_position(board, opposition_type)
 
