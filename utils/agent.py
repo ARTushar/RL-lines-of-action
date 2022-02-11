@@ -1,12 +1,28 @@
+from abc import ABC, abstractmethod
 from subprocess import Popen, PIPE
 from environments.lines_of_action.lac import LACEnv
 import gym
 import numpy as np
 
 
-class RandomAgent:
-    def __init__(self, player_no):
+class Agent(ABC):
+    def __init__(self, player_no: int):
         self.player_no = player_no
+
+
+    @abstractmethod
+    def choose_action(self, env: gym.Env, choose_best_action: bool):
+        pass
+
+    @staticmethod
+    def sample_action(action_probs):
+        action = np.random.choice(len(action_probs), p=action_probs)
+        return action
+
+
+class RandomAgent(Agent):
+    def __init__(self, player_no):
+        super(RandomAgent, self).__init__(player_no)
 
     def choose_action(self, env: gym.Env, choose_best_action: bool):
         action_probs = np.array(env.get_random_action())
@@ -16,24 +32,21 @@ class RandomAgent:
 
         return action
 
-    @staticmethod
-    def sample_action(action_probs):
-        action = np.random.choice(len(action_probs), p=action_probs)
-        return action
 
-
-class BotAgent:
+class BotAgent(Agent):
     def __init__(self, filename, player_no):
+        super(BotAgent, self).__init__(player_no)
         self.filename = filename,
-        self.player_no = player_no
         self.process = self.open_minmax_bot(filename, player_no)
 
-    def get_move(self, board):
+    def choose_action(self, env: gym.Env, choose_best_action: bool=True):
+        board = env.engine.board
         board_str = self.convert_board(board)
         print(board_str, file=self.process.stdin, flush=True)
         moves = self.process.stdout.readline()
         moves = [int(x) for x in moves[:-1].split()]
-        return moves
+        action = env.move_to_action(((moves[0], moves[1]), (moves[2], moves[3])))
+        return action
 
     @staticmethod
     def convert_board(board):
@@ -88,9 +101,7 @@ def test_bot_agent():
     game_done = False
     while not game_done:
         for agent in agents:
-            moves = agent.get_move(env.engine.board)
-            print('move: ', moves)
-            action = env.move_to_action(((moves[0], moves[1]), (moves[2], moves[3])))
+            action = agent.choose_action(env)
             _, reward, done, _ = env.step(action)
             env.render()
             if done:

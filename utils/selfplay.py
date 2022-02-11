@@ -36,16 +36,8 @@ class SelfPlayEnv(LACEnv):
         return super(SelfPlayEnv, self).reset()
 
     def continue_game(self):
-        done, info, observation = None, None, None
-        if self.opponent_type == OpponentType.BOT:
-            moves = self.opponent_agent.get_move(self.engine.board)
-            action = self.move_to_action(((moves[0], moves[1]), (moves[2], moves[3])))
-            observation, reward, done, info = super(SelfPlayEnv, self).step(action)
-
-        elif self.opponent_type == OpponentType.RANDOM:
-            action = self.opponent_agent.choose_action(self, True)
-            observation, reward, done, info = super(SelfPlayEnv, self).step(action)
-
+        action = self.opponent_agent.choose_action(self, True)
+        observation, reward, done, info = super(SelfPlayEnv, self).step(action)
         return observation, self.engine.opponent_reward, done, info
 
     def step(self, action):
