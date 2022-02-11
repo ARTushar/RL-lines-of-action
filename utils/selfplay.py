@@ -1,6 +1,7 @@
 from enum import Enum, auto
 
 import numpy as np
+from stable_baselines3.common.env_checker import check_env
 
 from environments.lines_of_action.lac import LACEnv
 from utils.agent import BotAgent, RandomAgent
@@ -18,6 +19,7 @@ class SelfPlayEnv(LACEnv):
         self.opponent_player_num = None
         self.agent_player_num = None
         self.opponent_agent = None
+        self.setup_opponents()
 
     def setup_opponents(self):
         self.agent_player_num = np.random.choice(self.n_players) + 1
@@ -48,3 +50,13 @@ class SelfPlayEnv(LACEnv):
             reward = self.engine.opponent_reward
 
         return observation, reward, done, info
+
+
+def test_self_play_env():
+    self_play = SelfPlayEnv(OpponentType.BOT)
+    check_env(self_play)
+
+
+if __name__ == '__main__':
+    test_self_play_env()
+
