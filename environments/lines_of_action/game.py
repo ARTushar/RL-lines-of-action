@@ -270,7 +270,9 @@ class Game:
         for i, row in enumerate(board):
             for j, val in enumerate(row):
                 if val == player_type:
-                    all_valid_moves.append(((i, j), Game.get_valid_moves(board, i, j)))
+                    all_moves = Game.get_valid_moves(board, i, j)
+                    if len(all_moves) != 0:
+                        all_valid_moves.append(((i, j), all_moves))
 
         return all_valid_moves
 
