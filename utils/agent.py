@@ -111,5 +111,5 @@ def test_bot_agent():
 
 if __name__ == '__main__':
     np.random.seed(1)
-    # test_random_agent()
-    test_bot_agent()
+    test_random_agent()
+    # test_bot_agent()

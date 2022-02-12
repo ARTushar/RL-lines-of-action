@@ -26,16 +26,17 @@ class SelfPlayEnv(LACEnv):
         self.opponent_player_num = 1 if self.agent_player_num == 2 else 2
 
         if self.opponent_type == OpponentType.BOT:
-            self.opponent_agent = BotAgent('../bots/player2', self.opponent_player_num)
-        elif self.opponent_agent == OpponentType.RANDOM:
+            self.opponent_agent = BotAgent('bots/player2', self.opponent_player_num)
+        elif self.opponent_type == OpponentType.RANDOM:
             self.opponent_agent = RandomAgent(self.opponent_player_num)
 
     def reset(self):
-        if self.engine.current_player != self.agent_player_num:
-            self.continue_game()
+        observation = super(SelfPlayEnv, self).reset()
         self.setup_opponents()
+        if self.engine.current_player != self.agent_player_num:
+            observation, _, _, _ = self.continue_game()
 
-        return super(SelfPlayEnv, self).reset()
+        return observation
 
     def continue_game(self):
         action = self.opponent_agent.choose_action(self, True)
@@ -59,4 +60,3 @@ def test_self_play_env():
 
 if __name__ == '__main__':
     test_self_play_env()
-
