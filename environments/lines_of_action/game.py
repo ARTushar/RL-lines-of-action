@@ -86,6 +86,30 @@ class Game:
             print()
 
     @staticmethod
+    def get_total_coc(board: BOARD, player_type: int):
+        total = 0
+        positions = Game.get_all_positions(board, player_type)
+        visited = set()
+        max_cluster_size = -1
+        for row, col in positions:
+            index = Game.get_pos_index(board, row, col)
+            if index not in visited:
+                temp = Game.bfs_visited(board, row, col, visited)
+                max_cluster_size = max(max_cluster_size, temp)
+                total += 1
+
+        return total, max_cluster_size
+
+    @staticmethod
+    def get_all_positions(board: BOARD, player_type: int):
+        positions = []
+        for i, row in enumerate(board):
+            for j, val in enumerate(row):
+                if val == player_type:
+                    positions.append((i, j))
+        return positions
+
+    @staticmethod
     def get_symbol(val):
         if val == -1:
             return 'B'
@@ -331,6 +355,23 @@ class Game:
         return len(visited)
 
     @staticmethod
+    def bfs_visited(board: BOARD, start_row: int, start_col: int, visited: set) -> int:
+        queue = deque()
+        start_pos = (start_row, start_col)
+        queue.append(start_pos)
+        visited.add(Game.get_pos_index(board, start_row, start_col))
+
+        while len(queue) != 0:
+            curr_row, curr_col = queue.popleft()
+            for n_row, n_col in Game.get_neighbors(board, curr_row, curr_col):
+                index = Game.get_pos_index(board, n_row, n_col)
+                if index not in visited:
+                    queue.append((n_row, n_col))
+                    visited.add(Game.get_pos_index(board, n_row, n_col))
+
+        return len(visited)
+
+    @staticmethod
     def get_a_position(board: BOARD, player_type: int):
         for i, row in enumerate(board):
             for j, val in enumerate(row):
@@ -384,7 +425,8 @@ class Game:
 
     @staticmethod
     def get_score(board: BOARD, player_type, opposition_type):
-        return Game.calculate_piece_square_sum(board, player_type, opposition_type)
+        # return Game.calculate_piece_square_sum(board, player_type, opposition_type)
+        return Game.calculate_coc_score(board, player_type)
 
     @staticmethod
     def calculate_piece_square_sum(board: BOARD, player_type: int, opposition_type: int) -> int:
@@ -397,3 +439,10 @@ class Game:
                 elif board[i][j] == opposition_type:
                     total_reward -= pieceSquareTable_updated[i * board_len + j]
         return total_reward
+
+    @staticmethod
+    def calculate_coc_score(board: BOARD, player_type: int):
+        total_coc, max_size = Game.get_total_coc(board, player_type)
+        return 12 - total_coc
+
+
