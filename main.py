@@ -1,9 +1,12 @@
+import numpy as np
 import gym
 from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.monitor import Monitor
 
 import config
 from utils.callback import SelfPlayCallback
-from utils.helpers import load_all_models, load_model
+from utils.helpers import load_all_models, load_model, load_best_model, load_random_model, get_model_generation_stats
 
 
 def train_stable_baseline3(env):
@@ -20,6 +23,17 @@ def train_stable_baseline3(env):
         'render': True,
         'verbose': 0
     }
+
+    # Evaluate against a 'rules' agent as well
+    eval_actual_callback = EvalCallback(
+      eval_env = env,
+      eval_freq=1,
+      n_eval_episodes=config.n_eval_episodes,
+      deterministic = True,
+      render = True,
+      verbose = 0
+    )
+    callback_args['callback_on_new_best'] = eval_actual_callback
 
     eval_callback = SelfPlayCallback(config.oponent_type, config.threshold, **callback_args)
 
@@ -44,7 +58,7 @@ def test_stable_baseline3(env):
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
-    # train_stable_baseline3(env)
+    env = Monitor(env)
+    train_stable_baseline3(env)
     # test_stable_baseline3(env)
-    models = load_all_models(env)
-    print(models)
+    # print(get_model_generation_stats())

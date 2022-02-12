@@ -5,11 +5,14 @@ from stable_baselines3.common.env_checker import check_env
 
 from environments.lines_of_action.lac import LACEnv
 from utils.agent import BotAgent, RandomAgent
-
+from utils.helpers import load_best_model
 
 class OpponentType(Enum):
     RANDOM = auto()
     BOT = auto()
+    PREV_BEST = auto()
+    PREV_RANDOM = auto()
+    BASE = auto()
 
 
 class SelfPlayEnv(LACEnv):
@@ -29,6 +32,8 @@ class SelfPlayEnv(LACEnv):
             self.opponent_agent = BotAgent('bots/player2', self.opponent_player_num)
         elif self.opponent_type == OpponentType.RANDOM:
             self.opponent_agent = RandomAgent(self.opponent_player_num)
+        elif self.opponent_type == OpponentType.PREV_BEST:
+            self.opponent_agent = load_best_model(self)
 
     def reset(self):
         observation = super(SelfPlayEnv, self).reset()
