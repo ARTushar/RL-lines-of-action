@@ -15,7 +15,7 @@ def train_with_random():
     model = PPO('CnnPolicy', env, policy_kwargs=policy_kwargs, verbose=0)
     eval_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
-        eval_freq=100,
+        eval_freq=1000,
         best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,

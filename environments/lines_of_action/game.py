@@ -119,11 +119,11 @@ class Game:
 
     @staticmethod
     def get_invalid_move_reward():
-        return -1000
+        return -1
 
     @staticmethod
     def get_winning_reward():
-        return 1000
+        return 12
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
