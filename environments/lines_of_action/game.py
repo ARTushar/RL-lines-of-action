@@ -13,6 +13,17 @@ pieceSquareTable8: list = [
     -80, -25, -20, -20, -20, -20, -25, -80
 ]
 
+pieceSquareTable_updated: list = [
+    0, 1, 2, 2, 2, 2, 1, 0,
+    1, 3, 3, 3, 3, 3, 3, 1,
+    2, 3, 4, 4, 4, 4, 3, 2,
+    2, 3, 4, 5, 5, 4, 3, 2,
+    2, 3, 4, 5, 5, 4, 3, 2,
+    2, 3, 4, 4, 4, 4, 3, 2,
+    1, 3, 3, 3, 3, 3, 3, 1,
+    0, 1, 2, 2, 2, 2, 1, 0
+]
+
 BOARD = List[List[int]]
 
 
@@ -84,11 +95,11 @@ class Game:
 
     @staticmethod
     def get_invalid_move_reward():
-        return -10000
+        return -1000
 
     @staticmethod
     def get_winning_reward():
-        return 10000
+        return 1000
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
@@ -382,7 +393,7 @@ class Game:
         for i in range(len(board)):
             for j in range(len(board)):
                 if board[i][j] == player_type:
-                    total_reward += pieceSquareTable8[i * board_len + j]
+                    total_reward += pieceSquareTable_updated[i * board_len + j]
                 elif board[i][j] == opposition_type:
-                    total_reward -= pieceSquareTable8[i * board_len + j]
+                    total_reward -= pieceSquareTable_updated[i * board_len + j]
         return total_reward
