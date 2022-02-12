@@ -9,7 +9,6 @@ class Agent(ABC):
     def __init__(self, player_no: int):
         self.player_no = player_no
 
-
     @abstractmethod
     def choose_action(self, env: gym.Env, choose_best_action: bool):
         pass

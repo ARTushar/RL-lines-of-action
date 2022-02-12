@@ -27,7 +27,7 @@ class LACEnv(gym.Env):
         self.engine = Game(self.grid_len)
 
         self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.num_squares * self.num_squares)
-        self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, self.grid_shape + (13, ))
+        self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)
 
     def step(self, action):
         move: MOVE = self.action_to_move(action)
@@ -101,7 +101,7 @@ class LACEnv(gym.Env):
         for i in range(12 - len(all_valid_moves)):
             all_frames.append(np.zeros((len(board), len(board)), dtype='float32'))
 
-        final_frame = np.stack(all_frames, axis=-1)
+        final_frame = np.stack(all_frames, axis=0)
         # print('shape of frame: ', final_frame.shape)
         return final_frame
 
