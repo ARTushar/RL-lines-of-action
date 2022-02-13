@@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
 from environments.lines_of_action.lac import LACEnv
 import gym
 import numpy as np
-
+from utils.helpers import load_best_model, load_random_model
 
 class Agent(ABC):
     def __init__(self, player_no: int, verbose=1):
@@ -11,7 +11,7 @@ class Agent(ABC):
         self.verbose = verbose
 
     @abstractmethod
-    def choose_action(self, env: gym.Env, choose_best_action: bool):
+    def choose_action(self, env: gym.Env, choose_best_action: bool, observation = None):
         pass
 
     @staticmethod
@@ -74,8 +74,23 @@ class BotAgent(Agent):
         command = [filename, player_type, str(board_size)]
         return Popen(command, stdin=PIPE, stdout=PIPE, universal_newlines=True, bufsize=1)
 
-# TODO: Create a model agent
 
+# TODO: Create a model agent
+class ModelAgent(Agent):
+    def __init__(self, player_no: int, env, model='random', verbose=1):
+        super().__init__(player_no, verbose)
+        if model == 'best':
+            self.model = load_best_model(env)
+        else:
+            self.model = load_random_model(env)
+
+    def choose_action(self, env: gym.Env, choose_best_action: bool, observation = None):
+        # action_probs = self.model.action_probability(observation)
+        # value = self.model.policy_pi.value(np.array([observation]))[0]
+        # print(f'Value {value:.2f}')
+        # action = np.argmax(action_probs)
+        action, _state = self.model.predict(observation, deterministic=True)
+        return action
 
 def test_random_agent():
     agents = [RandomAgent(1), RandomAgent(2)]

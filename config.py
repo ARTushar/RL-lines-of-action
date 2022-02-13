@@ -7,7 +7,7 @@ MODELDIR = "zoo"
 
 
 oponent_type = 'best'
-eval_freq = 1024
+eval_freq = 128
 n_eval_episodes = 100
 threshold = .2
 

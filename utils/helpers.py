@@ -1,5 +1,6 @@
 import os
 from stable_baselines3 import PPO
+import numpy as np
 
 import config
 
@@ -21,3 +22,53 @@ def load_all_models(env):
         models.append(load_model(model_path, env))
     return models
 
+
+
+def get_best_model_name(dir):
+    model_name_list = [f for f in os.listdir(dir) if f.startswith("_model")]
+    model_name_list.sort()
+    if len(model_name_list) == 0:
+        return None
+    model_name = model_name_list[-1]
+    return model_name
+
+
+def load_best_model(env):
+    model_name = get_best_model_name(config.MODELPOOLDIR)
+    # print('best model name:', model_name)
+    if model_name is None:
+        model_path = os.path.join(config.MODELPOOLDIR, 'base.zip')
+    else:
+        model_path = os.path.join(config.MODELPOOLDIR, model_name)
+    model = load_model(model_path, env)
+    return model
+
+
+def load_random_model(env):
+    model_name_list = [f for f in os.listdir(config.MODELPOOLDIR) if f.startswith("_model")]
+    if len(model_name_list) == 0:
+        model_name = 'base.zip'
+    else:
+        model_name = np.random.choice(model_name_list)
+    print('random model name:', model_name)
+    model_path = os.path.join(config.MODELPOOLDIR, model_name)
+    model = load_model(model_path, env)
+    return model
+
+
+
+def get_model_generation_stats():
+    best_model_name = get_best_model_name(config.MODELPOOLDIR)
+    if best_model_name is None:
+        generation = 0
+        timesteps = 0
+        best_rules_based = -np.inf
+        best_reward = -np.inf
+    else:
+        best_model_name = best_model_name[:-4] # excluding .zip
+        stats = best_model_name.split('_')
+        generation = int(stats[2])
+        best_rules_based = float(stats[3])
+        best_reward = float(stats[4])
+        timesteps = int(stats[5])
+    return generation, best_rules_based, best_reward, timesteps
