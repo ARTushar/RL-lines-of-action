@@ -1,5 +1,7 @@
 from stable_baselines3.common.callbacks import EvalCallback
+import torch
 from utils.helpers import get_model_generation_stats
+from utils.selfplay import SelfPlayEnv, OpponentType
 import numpy as np
 import os
 from shutil import copyfile
@@ -29,7 +31,8 @@ class SelfPlayCallback(EvalCallback):
 
 
   def _on_step(self) -> bool:
-
+    print('on step...')
+    torch.cuda.empty_cache()
     if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
       print('evaluating ...')
       print('episode: ', self.n_calls/self.eval_freq)

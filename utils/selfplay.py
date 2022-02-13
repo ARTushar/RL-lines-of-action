@@ -1,11 +1,11 @@
 from enum import Enum, auto
+from lib2to3.pgen2.token import OP
 
 import numpy as np
 from stable_baselines3.common.env_checker import check_env
 
 from environments.lines_of_action.lac import LACEnv
-from utils.agent import BotAgent, RandomAgent
-from utils.helpers import load_best_model
+from utils.agent import BotAgent, RandomAgent, ModelAgent
 
 class OpponentType(Enum):
     RANDOM = auto()
@@ -38,18 +38,23 @@ class SelfPlayEnv(LACEnv):
         elif self.opponent_type == OpponentType.RANDOM:
             self.opponent_agent = RandomAgent(self.opponent_player_num)
         elif self.opponent_type == OpponentType.PREV_BEST:
-            self.opponent_agent = load_best_model(self)
+            self.opponent_agent = ModelAgent(self.opponent_player_num, self, 'best')
+        elif self.opponent_type == OpponentType.PREV_RANDOM:
+            self.opponent_agent = ModelAgent(self.opponent_player_num, self, 'random')
 
     def reset(self):
         observation = super(SelfPlayEnv, self).reset()
         self.setup_opponents()
         if self.engine.current_player != self.agent_player_num:
-            observation, _, _, _ = self.continue_game()
+            observation, _, _, _ = self.continue_game(observation)
 
         return observation
 
-    def continue_game(self):
-        action = self.opponent_agent.choose_action(self, True)
+    def continue_game(self, observation=None):
+        if self.opponent_type == OpponentType.PREV_BEST or self.opponent_type == OpponentType.PREV_RANDOM:
+            action = self.opponent_agent.choose_action(self, True, observation)
+        else:
+            action = self.opponent_agent.choose_action(self, True)
         observation, reward, done, info = super(SelfPlayEnv, self).step(action)
         return observation, self.engine.opponent_reward, done, info
 
@@ -57,7 +62,7 @@ class SelfPlayEnv(LACEnv):
         observation, reward, done, info = super(SelfPlayEnv, self).step(action)
 
         if not done:
-            observation, reward, done, info = self.continue_game()
+            observation, reward, done, info = self.continue_game(observation)
             reward = self.engine.opponent_reward
 
         return observation, reward, done, info
