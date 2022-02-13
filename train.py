@@ -6,16 +6,18 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 
 import config
-from models.model import CustomCNN
+from models.model import CustomCNN, CustomActorCriticPolicy
 from utils.selfplay import SelfPlayEnv, OpponentType
 
 
 def train_with_random():
     policy_kwargs = dict(
         features_extractor_class=CustomCNN,
+        features_extractor_kwargs=dict(features_dim=64*64),
+
     )
     env = SelfPlayEnv(opponent_type=OpponentType.RANDOM, verbose=0)
-    model = PPO('CnnPolicy', env, policy_kwargs=policy_kwargs, verbose=0)
+    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
     eval_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
         eval_freq=1000,
