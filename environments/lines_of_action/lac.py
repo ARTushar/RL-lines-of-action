@@ -17,14 +17,13 @@ class LACEnv(gym.Env):
     n_players = 2
     grid_len = 8
 
-    def __init__(self, verbose: bool = False, manual: bool = False):
+    def __init__(self, verbose: int = 1):
         super(LACEnv, self).__init__()
         self.name = 'Lines of Action'
-        self.manual = manual
         self.verbose = verbose
         self.num_squares = self.grid_len * self.grid_len
         self.grid_shape = (self.grid_len, self.grid_len)
-        self.engine = Game(self.grid_len)
+        self.engine = Game(self.grid_len, verbose=verbose)
 
         self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.num_squares * self.num_squares)
         self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)

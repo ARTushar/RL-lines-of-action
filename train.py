@@ -1,5 +1,8 @@
+import os
+
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 
 import config
@@ -11,7 +14,7 @@ def train_with_random():
     policy_kwargs = dict(
         features_extractor_class=CustomCNN,
     )
-    env = SelfPlayEnv(opponent_type=OpponentType.RANDOM)
+    env = SelfPlayEnv(opponent_type=OpponentType.RANDOM, verbose=0)
     model = PPO('CnnPolicy', env, policy_kwargs=policy_kwargs, verbose=0)
     eval_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
@@ -27,6 +30,20 @@ def train_with_random():
     env.close()
 
 
+def evaluate_trained_model():
+    # policy_kwargs = dict(
+    #     features_extractor_class=CustomCNN,
+    # )
+    env = SelfPlayEnv(opponent_type=OpponentType.RANDOM)
+    best_mode_name = 'best_model.zip'
+    path = os.path.join(config.TMPMODELDIR, best_mode_name)
+    model = PPO.load(path, env=env)
+    mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=2)
+    print("mean reward : ", mean_reward)
+
+
 if __name__ == '__main__':
     train_with_random()
+    # evaluate_trained_model()
+
 

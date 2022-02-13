@@ -6,8 +6,9 @@ import numpy as np
 
 
 class Agent(ABC):
-    def __init__(self, player_no: int):
+    def __init__(self, player_no: int, verbose=1):
         self.player_no = player_no
+        self.verbose = verbose
 
     @abstractmethod
     def choose_action(self, env: gym.Env, choose_best_action: bool):

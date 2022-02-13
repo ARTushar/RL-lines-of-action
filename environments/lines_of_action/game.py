@@ -28,7 +28,7 @@ BOARD = List[List[int]]
 
 
 class Game:
-    def __init__(self, board_size=8):
+    def __init__(self, board_size=8, verbose=1):
         self.board_size = board_size
         self.board = self._create_board()
         self.first_player = -1  # -1 -> black
@@ -39,12 +39,15 @@ class Game:
         self.done = False
         self.winner = None
 
+        self.verbose = verbose
         # If is needed to access
         self.opponent_reward = None
 
     def step(self, selected_pos, target_pos):
         is_valid_move = self.is_valid_move(self.board, selected_pos, target_pos, self.current_player)
         if not is_valid_move:
+            if self.verbose >= 1:
+                print("Invalid move by: ", self.current_player)
             self.done = True
             self.winner = self._get_opposition(self.current_player)
             reward = self.get_invalid_move_reward()
@@ -68,7 +71,11 @@ class Game:
 
         self.winner = self.get_winner(self._get_opposition(self.current_player))
         if self.winner is not None:
+            if self.verbose >= 1:
+                print("Won by: ", self.current_player)
             if self.winner == self.current_player:
+                if self.verbose >= 1:
+                    print("Won by: ", self.current_player)
                 reward = self.get_winning_reward()
                 self.opponent_reward = -reward
             else:
