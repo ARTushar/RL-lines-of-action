@@ -16,17 +16,22 @@ class OpponentType(Enum):
 
 
 class SelfPlayEnv(LACEnv):
-    def __init__(self, opponent_type: OpponentType):
-        super(SelfPlayEnv, self).__init__()
+    def __init__(self, opponent_type: OpponentType, verbose: int = 1):
+        super(SelfPlayEnv, self).__init__(verbose=verbose)
         self.opponent_type = opponent_type
+        self.verbose = verbose
         self.opponent_player_num = None
         self.agent_player_num = None
         self.opponent_agent = None
-        self.setup_opponents()
+        # self.setup_opponents()
 
     def setup_opponents(self):
         self.agent_player_num = np.random.choice(self.n_players) + 1
-        self.opponent_player_num = 1 if self.agent_player_num == 2 else 2
+        self.opponent_player_num = -1 if self.agent_player_num == 2 else 1
+        self.agent_player_num = -1 if self.opponent_player_num == 1 else 1
+        if self.verbose >= 1:
+            print("Agent player: ", self.agent_player_num)
+            print("Opponent player: ", self.opponent_player_num)
 
         if self.opponent_type == OpponentType.BOT:
             self.opponent_agent = BotAgent('bots/player2', self.opponent_player_num)
