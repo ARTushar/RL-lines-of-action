@@ -31,16 +31,12 @@ class SelfPlayCallback(EvalCallback):
 
 
   def _on_step(self) -> bool:
-    print('on step...')
-    torch.cuda.empty_cache()
     if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
-      print('evaluating ...')
+      print('\nevaluating ...')
       print('episode: ', self.n_calls/self.eval_freq)
       print('generation: ', self.generation)
       print('best mean reward: ', self.best_mean_reward)
       result = super(SelfPlayCallback, self)._on_step() #this will set self.best_mean_reward to the reward from the evaluation as it's previously -np.inf
-      print('result: ', result)
-      print('best mean reward again: ', self.best_mean_reward)
       # list_of_rewards = MPI.COMM_WORLD.allgather(self.best_mean_reward)
       # av_reward = np.mean(list_of_rewards)
       # std_reward = np.std(list_of_rewards)
@@ -56,7 +52,7 @@ class SelfPlayCallback(EvalCallback):
       #   logger.info("Eval num_timesteps={}, episode_reward={:.2f} +/- {:.2f}".format(self.num_timesteps, av_reward, std_reward))
       #   logger.info("Total episodes ran={}".format(total_episodes))
 
-      print('threshold: ', self.threshold)
+      print('new threshold: ', self.threshold)
       # #compare the latest reward against the threshold
       if result and self.best_mean_reward > self.threshold:
         self.generation += 1
