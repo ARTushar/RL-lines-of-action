@@ -6,13 +6,14 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 
 import config
-from models.model import CustomCNN, CustomActorCriticPolicy
+from models.model import CustomCNN, CustomActorCriticPolicy, ResnetFeatureExtractor
 from utils.selfplay import SelfPlayEnv, OpponentType
 
 
 def train_with_random():
     policy_kwargs = dict(
-        features_extractor_class=CustomCNN,
+        # features_extractor_class=CustomCNN,
+        features_extractor_class=ResnetFeatureExtractor,
         features_extractor_kwargs=dict(features_dim=64*64*2),
 
     )
@@ -60,11 +61,10 @@ def continue_train():
     model.learn(total_timesteps=int(1e9), callback=[eval_callback], tb_log_name='tb')
 
 
-
 if __name__ == '__main__':
-    # train_with_random()
+    train_with_random()
     # evaluate_trained_model()
-    continue_train()
+    # continue_train()
 
 
 
