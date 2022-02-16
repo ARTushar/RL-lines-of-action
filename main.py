@@ -19,7 +19,7 @@ def train_stable_baseline3(env):
 
     )
     env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
-    model = PPO(CustomActorCriticPolicy, env, batch_size=8, policy_kwargs=policy_kwargs, verbose=0)
+    model = PPO(CustomActorCriticPolicy, env, batch_size=64, policy_kwargs=policy_kwargs, verbose=0)
     
 
     callback_args = {
@@ -28,8 +28,8 @@ def train_stable_baseline3(env):
         'log_path': config.LOGDIR,
         'eval_freq': config.eval_freq,
         'n_eval_episodes': config.n_eval_episodes,
-        'deterministic': False,
-        'render': True,
+        'deterministic': True,
+        'render': False,
         'verbose': 0
     }
 
@@ -46,7 +46,7 @@ def train_stable_baseline3(env):
 
     eval_callback = SelfPlayCallback(OpponentType.PREV_BEST, config.threshold, **callback_args)
 
-    model.learn(total_timesteps=10000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
+    model.learn(total_timesteps=100000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
 
     print('saving the model....')
     model.save('ppo_cartpole')
