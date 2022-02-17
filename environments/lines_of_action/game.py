@@ -126,11 +126,11 @@ class Game:
 
     @staticmethod
     def get_invalid_move_reward():
-        return -120
+        return -1
 
     @staticmethod
     def get_winning_reward():
-        return 120
+        return 1
 
     @staticmethod
     def is_valid_move(board: BOARD, move_from, move_to, player_type):
@@ -450,6 +450,6 @@ class Game:
     @staticmethod
     def calculate_coc_score(board: BOARD, player_type: int):
         total_coc, max_size = Game.get_total_coc(board, player_type)
-        return 12 - total_coc
+        return 1 - total_coc/12
 
 
