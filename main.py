@@ -12,14 +12,17 @@ from utils.selfplay import SelfPlayEnv, OpponentType
 from utils.helpers import load_all_models, load_model, load_best_model, load_random_model, get_model_generation_stats
 
 
-def train_stable_baseline3(env):
+def train_model(env, continue_from_last_checkpoint=False):
     print("Training RL agent")
     policy_kwargs = dict(
         # features_extractor_class=CustomCNN,
         features_extractor_class=ResnetFeatureExtractor,
         features_extractor_kwargs=dict(features_dim=64 * 64 * 2),
     )
-    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
+    if continue_from_last_checkpoint:
+        model = load_best_model(env)
+    else:
+        model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
 
     callback_args = {
         'eval_env': Monitor(env),
@@ -35,7 +38,7 @@ def train_stable_baseline3(env):
     # Evaluate against a 'random' agent as well
     eval_actual_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
-        eval_freq=100,
+        eval_freq=config.eval_freq,
         best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,
@@ -66,6 +69,7 @@ def test_stable_baseline3(env):
 
 if __name__ == '__main__':
     custom_env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
-    train_stable_baseline3(custom_env)
-    # test_stable_baseline3(env)
-    # print(get_model_generation_stats())
+    train_model(custom_env, continue_from_last_checkpoint=False)
+
+
+
