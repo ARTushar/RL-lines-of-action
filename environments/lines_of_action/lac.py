@@ -44,7 +44,7 @@ class LACEnv(gym.Env):
         self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)
 
     def step(self, action):
-        move: MOVE = self.action_to_move(action, self.engine.board, self.engine.current_player)
+        move: MOVE = self.action_to_move(action, self.engine.board)
         reward = self.engine.step(move[0], move[1])
         observation = self.create_observation(self.engine.board, self.engine.get_all_current_player_moves(), self.engine.current_player)
         return observation, reward, self.engine.done, {'state': self.engine.board}
@@ -121,8 +121,8 @@ class LACEnv(gym.Env):
         return MoveDirection.INVALID
 
     @staticmethod
-    def direction_to_move(selected: Tuple[int, int], direction: MoveDirection, board, current_player) -> MOVE:
-        row_cells, col_cells, left_diagonal_cells, right_diagonal_cells = Game.calculate_total_cells(board, current_player)
+    def direction_to_move(selected: Tuple[int, int], direction: MoveDirection, board) -> MOVE:
+        row_cells, col_cells, left_diagonal_cells, right_diagonal_cells = Game._get_total_active_cells(board, selected[0], selected[1])
         if direction is MoveDirection.LEFT:
             return selected, (selected[0], selected[1] - row_cells)
         if direction is MoveDirection.RIGHT:
@@ -153,14 +153,14 @@ class LACEnv(gym.Env):
         return selected * LACEnv.total_valid_directions + direction.value
 
     @staticmethod
-    def action_to_move(action: int, board, current_player) -> MOVE:
+    def action_to_move(action: int, board) -> MOVE:
         grid_len = LACEnv.grid_len
         # total_squares = grid_len * grid_len
 
         selected, direction = action // LACEnv.total_valid_directions, action % LACEnv.total_valid_directions
         direction = MoveDirection(direction)
         sel = selected // grid_len, selected % grid_len
-        move = LACEnv.direction_to_move(sel, direction, board, current_player)
+        move = LACEnv.direction_to_move(sel, direction, board)
         return move
 
     @staticmethod
