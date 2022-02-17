@@ -4,6 +4,7 @@ import numpy as np
 
 import config
 
+
 def load_model(model_file, env):
     if os.path.isfile(model_file):
         ppo_model = PPO.load(model_file)
@@ -21,7 +22,6 @@ def load_all_models(env):
     for model_path in model_path_list:
         models.append(load_model(model_path, env))
     return models
-
 
 
 def get_best_model_name(dir):
@@ -54,7 +54,6 @@ def load_random_model(env):
     model_path = os.path.join(config.MODELPOOLDIR, model_name)
     model = load_model(model_path, env)
     return model
-
 
 
 def get_model_generation_stats():

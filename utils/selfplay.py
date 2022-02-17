@@ -4,8 +4,11 @@ from lib2to3.pgen2.token import OP
 import numpy as np
 from stable_baselines3.common.env_checker import check_env
 
+import config
+from utils.helpers import load_best_model, get_best_model_name
 from environments.lines_of_action.lac import LACEnv
 from utils.agent import BotAgent, RandomAgent, ModelAgent
+
 
 class OpponentType(Enum):
     RANDOM = auto()
@@ -23,6 +26,8 @@ class SelfPlayEnv(LACEnv):
         self.opponent_player_num = None
         self.agent_player_num = None
         self.opponent_agent = None
+        self.best_model_name = ''
+        self.best_model_agent = None
         # self.setup_opponents()
 
     def setup_opponents(self):
@@ -38,7 +43,13 @@ class SelfPlayEnv(LACEnv):
         elif self.opponent_type == OpponentType.RANDOM:
             self.opponent_agent = RandomAgent(self.opponent_player_num)
         elif self.opponent_type == OpponentType.PREV_BEST:
-            self.opponent_agent = ModelAgent(self.opponent_player_num, self, 'best')
+            best_model_name = get_best_model_name(config.MODELPOOLDIR)
+            if best_model_name != self.best_model_name:
+                self.best_model_name = best_model_name
+                self.best_model_agent = ModelAgent(self.opponent_player_num, self, 'best')
+                self.opponent_agent = self.best_model_agent
+            else:
+                self.opponent_agent = self.best_model_agent
         elif self.opponent_type == OpponentType.PREV_RANDOM:
             self.opponent_agent = ModelAgent(self.opponent_player_num, self, 'random')
 
