@@ -3,6 +3,7 @@ import gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.monitor import Monitor
+import os
 
 import config
 from utils.callback import SelfPlayCallback
@@ -47,7 +48,7 @@ def train_stable_baseline3(env):
     model.learn(total_timesteps=100000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
 
     print('saving the model....')
-    model.save('ppo_cartpole')
+    model.save(os.path.join(config.MODELDIR, 'model.zip'))
 
 
 def test_stable_baseline3(env):
