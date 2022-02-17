@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
+zoo/
 zoo/tmpraju/*
 zoo/modelpool/*
 zoo/tmp/*
@@ -12,6 +13,8 @@ __pycache__/
 
 # C extensions
 *.so
+
+.amlignore*
 
 # Distribution / packaging
 .Python

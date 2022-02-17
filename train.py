@@ -21,10 +21,10 @@ def train_with_random():
     eval_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
         eval_freq=1000,
-        best_model_save_path=config.TMPMODELDIR,
+        best_model_save_path=config.TMPMODELDIR648,
         log_path=config.LOGDIR,
         deterministic=True,
-        render=False
+        render=False,
     )
 
     model.learn(total_timesteps=int(1e9), callback=[eval_callback], tb_log_name='tb')
