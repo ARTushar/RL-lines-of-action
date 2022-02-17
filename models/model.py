@@ -35,8 +35,8 @@ class CustomNetwork(nn.Module):
     def __init__(
             self,
             feature_dim: int = 64*64*2,
-            last_layer_dim_pi: int = 64*64,
-            last_layer_dim_vf: int = 64*64
+            last_layer_dim_pi: int = 64*8,
+            last_layer_dim_vf: int = 64*8
     ):
         super(CustomNetwork, self).__init__()
         self.latent_dim_pi = last_layer_dim_pi
