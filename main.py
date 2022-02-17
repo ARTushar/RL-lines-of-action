@@ -3,24 +3,26 @@ import gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.monitor import Monitor
+import os
 
 import config
 from utils.callback import SelfPlayCallback
-from models.model import CustomCNN, CustomActorCriticPolicy
+from models.model import CustomCNN, CustomActorCriticPolicy, ResnetFeatureExtractor
 from utils.selfplay import SelfPlayEnv, OpponentType
 from utils.helpers import load_all_models, load_model, load_best_model, load_random_model, get_model_generation_stats
 
 
-def train_stable_baseline3(env):
+def train_model(env, continue_from_last_checkpoint=False):
     print("Training RL agent")
     policy_kwargs = dict(
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=64*64*2),
-
+        # features_extractor_class=CustomCNN,
+        features_extractor_class=ResnetFeatureExtractor,
+        features_extractor_kwargs=dict(features_dim=64 * 64 * 2),
     )
-    env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
-    model = PPO(CustomActorCriticPolicy, env, batch_size=64, policy_kwargs=policy_kwargs, verbose=0)
-    
+    if continue_from_last_checkpoint:
+        model = load_best_model(env)
+    else:
+        model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
 
     callback_args = {
         'eval_env': Monitor(env),
@@ -36,7 +38,7 @@ def train_stable_baseline3(env):
     # Evaluate against a 'random' agent as well
     eval_actual_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
-        eval_freq=100,
+        eval_freq=config.eval_freq,
         best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,
@@ -49,7 +51,7 @@ def train_stable_baseline3(env):
     model.learn(total_timesteps=100000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
 
     print('saving the model....')
-    model.save('ppo_cartpole')
+    model.save(os.path.join(config.MODELDIR, 'model.zip'))
 
 
 def test_stable_baseline3(env):
@@ -66,8 +68,8 @@ def test_stable_baseline3(env):
 
 
 if __name__ == '__main__':
-    env = gym.make('CartPole-v1')
-    env = Monitor(env)
-    train_stable_baseline3(env)
-    # test_stable_baseline3(env)
-    # print(get_model_generation_stats())
+    custom_env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
+    train_model(custom_env, continue_from_last_checkpoint=False)
+
+
+
