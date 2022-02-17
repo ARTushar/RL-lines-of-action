@@ -15,7 +15,6 @@ def train_with_random():
         # features_extractor_class=CustomCNN,
         features_extractor_class=ResnetFeatureExtractor,
         features_extractor_kwargs=dict(features_dim=64*64*2),
-
     )
     env = SelfPlayEnv(opponent_type=OpponentType.RANDOM, verbose=0)
     model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)

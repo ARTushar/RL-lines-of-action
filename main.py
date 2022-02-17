@@ -6,7 +6,7 @@ from stable_baselines3.common.monitor import Monitor
 
 import config
 from utils.callback import SelfPlayCallback
-from models.model import CustomCNN, CustomActorCriticPolicy
+from models.model import CustomCNN, CustomActorCriticPolicy, ResnetFeatureExtractor
 from utils.selfplay import SelfPlayEnv, OpponentType
 from utils.helpers import load_all_models, load_model, load_best_model, load_random_model, get_model_generation_stats
 
@@ -14,13 +14,11 @@ from utils.helpers import load_all_models, load_model, load_best_model, load_ran
 def train_stable_baseline3(env):
     print("Training RL agent")
     policy_kwargs = dict(
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=64*64*2),
-
+        # features_extractor_class=CustomCNN,
+        features_extractor_class=ResnetFeatureExtractor,
+        features_extractor_kwargs=dict(features_dim=64 * 64 * 2),
     )
-    env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
-    model = PPO(CustomActorCriticPolicy, env, batch_size=64, policy_kwargs=policy_kwargs, verbose=0)
-    
+    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
 
     callback_args = {
         'eval_env': Monitor(env),
@@ -66,8 +64,7 @@ def test_stable_baseline3(env):
 
 
 if __name__ == '__main__':
-    env = gym.make('CartPole-v1')
-    env = Monitor(env)
-    train_stable_baseline3(env)
+    custom_env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
+    train_stable_baseline3(custom_env)
     # test_stable_baseline3(env)
     # print(get_model_generation_stats())

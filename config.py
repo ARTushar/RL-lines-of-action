@@ -1,12 +1,12 @@
 LOGDIR = "logs"
 RESULTSPATH = 'viz/results.csv'
-TMPMODELDIR = "zoo/tmp"
+TMPMODELDIR = "zoo/tmpraju"
 MODELPOOLDIR = "zoo/modelpool"
 MODELDIR = "zoo"
 
+model_output_dim = 64*64*2
 
-
-oponent_type = 'best'
+opponent_type = 'best'
 eval_freq = 128
 n_eval_episodes = 100
 threshold = .2

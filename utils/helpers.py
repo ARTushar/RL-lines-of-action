@@ -1,15 +1,27 @@
 import os
 from stable_baselines3 import PPO
+
+from models.model import CustomCNN, CustomActorCriticPolicy, ResnetFeatureExtractor
 import numpy as np
 
 import config
+
+
+def create_custom_policy_ppo_model(env):
+    policy_kwargs = dict(
+        # features_extractor_class=CustomCNN,
+        features_extractor_class=ResnetFeatureExtractor,
+        features_extractor_kwargs=dict(features_dim=config.model_output_dim),
+    )
+    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
+    return model
 
 
 def load_model(model_file, env):
     if os.path.isfile(model_file):
         ppo_model = PPO.load(model_file)
     else:
-        ppo_model = PPO('MlpPolicy', env, verbose=1)
+        ppo_model = create_custom_policy_ppo_model(env)
         ppo_model.save(model_file)
     return ppo_model
 
