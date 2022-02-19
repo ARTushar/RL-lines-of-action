@@ -90,6 +90,7 @@ class ModelAgent(Agent):
         # print(f'Value {value:.2f}')
         # action = np.argmax(action_probs)
         action, _state = self.model.predict(observation, deterministic=True)
+        # print(action)
         return action
 
 def test_random_agent():

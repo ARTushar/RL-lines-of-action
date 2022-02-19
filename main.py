@@ -17,10 +17,12 @@ def train_model(env, continue_from_last_checkpoint=False):
     policy_kwargs = dict(
         # features_extractor_class=CustomCNN,
         features_extractor_class=ResnetFeatureExtractor,
-        features_extractor_kwargs=dict(features_dim=64 * 64 * 2),
+        features_extractor_kwargs=dict(features_dim=config.model_output_dim),
     )
     if continue_from_last_checkpoint:
-        model = load_best_model(env)
+        # model = load_best_model(env)
+        model_file = os.path.join(config.MODELPOOLDIR, 'best_model_tushar.zip')
+        model = PPO.load(model_file, env=env)
     else:
         model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
 
@@ -42,7 +44,8 @@ def train_model(env, continue_from_last_checkpoint=False):
         best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,
-        render=False
+        render=False,
+        verbose=1
     )
     callback_args['callback_on_new_best'] = eval_actual_callback
 
@@ -51,7 +54,7 @@ def train_model(env, continue_from_last_checkpoint=False):
     model.learn(total_timesteps=100000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
 
     print('saving the model....')
-    model.save(os.path.join(config.MODELDIR, 'model.zip'))
+    model.save(os.path.join(config.MODELPOOLDIR, 'model.zip'))
 
 
 def test_stable_baseline3(env):
@@ -70,6 +73,7 @@ def test_stable_baseline3(env):
 if __name__ == '__main__':
     custom_env = SelfPlayEnv(opponent_type=OpponentType.PREV_BEST, verbose=0)
     train_model(custom_env, continue_from_last_checkpoint=False)
+    custom_env.close()
 
 
 
