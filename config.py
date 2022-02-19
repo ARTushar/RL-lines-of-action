@@ -1,7 +1,7 @@
 LOGDIR = "logs"
 RESULTSPATH = 'viz/results.csv'
-TMPMODELDIR = "zoo/tmpraju"
-MODELPOOLDIR = "zoo/modelpool"
+TMPMODELDIR = "zoo/tmp-64-64"
+MODELPOOLDIR = "zoo/modelpool-64-64"
 MODELDIR = "zoo"
 
 model_output_dim = 64*64*2
