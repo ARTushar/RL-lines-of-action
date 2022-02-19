@@ -31,9 +31,6 @@ class SelfPlayCallback(EvalCallback):
 
 
   def _on_step(self) -> bool:
-    print('----itr------: ', self.n_calls)
-    print(self.last_mean_reward)
-    print(self.best_mean_reward)
     if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
       print('\nevaluating ...')
       print('episode: ', self.n_calls)
@@ -54,6 +51,7 @@ class SelfPlayCallback(EvalCallback):
       # if rank == 0:
       #   logger.info("Eval num_timesteps={}, episode_reward={:.2f} +/- {:.2f}".format(self.num_timesteps, av_reward, std_reward))
       #   logger.info("Total episodes ran={}".format(total_episodes))
+      print('last mean reward: ', self.last_mean_reward)
       print('new best mean reward: ', self.best_mean_reward)
       # #compare the latest reward against the threshold
       if result and self.best_mean_reward > self.threshold:

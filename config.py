@@ -7,7 +7,7 @@ MODELPOOLDIR = "zoo/modelpool_64_8"
 
 MODELDIR = "zoo"
 
-model_output_dim = 64*64*2
+model_output_dim = 128*8*8
 
 opponent_type = 'best'
 eval_freq = 1000

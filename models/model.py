@@ -9,7 +9,7 @@ from torch.nn.functional import relu
 
 
 class CustomCNN(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.Space, features_dim: int = 64 * 64 * 2):
+    def __init__(self, observation_space: gym.Space, features_dim: int = 128*8*8):
         super().__init__(observation_space, features_dim)
         # assume channel first
         n_input_channels = observation_space.shape[0]
@@ -34,7 +34,7 @@ class CustomCNN(BaseFeaturesExtractor):
 class CustomNetwork(nn.Module):
     def __init__(
             self,
-            feature_dim: int = 64*64*2,
+            feature_dim: int = 128*8*8,
             last_layer_dim_pi: int = 64*8,
             last_layer_dim_vf: int = 64*8
     ):
@@ -43,10 +43,12 @@ class CustomNetwork(nn.Module):
         self.latent_dim_vf = last_layer_dim_vf
 
         self.policy_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_pi), nn.ReLU()
+            nn.Linear(feature_dim, last_layer_dim_pi), nn.ReLU(),
+            nn.Linear(last_layer_dim_pi, last_layer_dim_pi), nn.ReLU()
         )
         self.value_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_vf), nn.ReLU()
+            nn.Linear(feature_dim, last_layer_dim_vf), nn.ReLU(),
+            nn.Linear(last_layer_dim_vf, last_layer_dim_vf), nn.ReLU()
         )
 
     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
@@ -86,17 +88,17 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
 
 
 class ResnetFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.Space, features_dim: int = 64*64*2):
+    def __init__(self, observation_space: gym.Space, features_dim: int = 128*8*8):
         super().__init__(observation_space, features_dim)
         self.input_channels = observation_space.shape[0]
         self.cnn = nn.Sequential(
-            self.conv2d(in_channels=self.input_channels, out_channels=128),
-            nn.BatchNorm2d(momentum=0.9, num_features=128),
+            self.conv2d(in_channels=self.input_channels, out_channels=64),
+            nn.BatchNorm2d(num_features=64),
             nn.ReLU(),
         )
         self.cnn_2 = nn.Sequential(
             self.conv2d(in_channels=128, out_channels=128),
-            nn.BatchNorm2d(momentum=0.9, num_features=128),
+            nn.BatchNorm2d(num_features=128),
         )
         # self.cnn_3 = nn.Sequential(
         #     self.conv2d(in_channels=128, out_channels=128),
@@ -109,6 +111,44 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
             nn.Linear(128 * 8 * 8, features_dim),
             nn.ReLU()
         )
+
+        self.cnn_64 = nn.Sequential(
+            self.conv2d(in_channels=64, out_channels=64),
+            nn.BatchNorm2d(num_features=64),
+            nn.ReLU(),
+            self.conv2d(in_channels=64, out_channels=64),
+            nn.BatchNorm2d(num_features=64),
+        )
+
+        self.cnn_64_128 = nn.Sequential(
+            self.conv2d(in_channels=64, out_channels=128),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(),
+        )
+
+        self.cnn_128 = nn.Sequential(
+            self.conv2d(in_channels=128, out_channels=128),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(),
+            self.conv2d(in_channels=128, out_channels=128),
+            nn.BatchNorm2d(num_features=128),
+        )
+
+        self.cnn_128_256 = nn.Sequential(
+            self.conv2d(in_channels=128, out_channels=256),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(),
+        )
+
+        self.cnn_256 = nn.Sequential(
+            self.conv2d(in_channels=256, out_channels=256),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(),
+            self.conv2d(in_channels=256, out_channels=256),
+            nn.BatchNorm2d(num_features=256),
+        )
+        
+        
 
     @staticmethod
     def conv2d(in_channels: int, out_channels: int, kernel_size: Tuple[int, int] = (3, 3), padding: Tuple[int, int] = (1, 1)):
@@ -124,14 +164,42 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
     def forward(self, observations: th.Tensor) -> th.Tensor:
         y = self.cnn(observations)
         shortcut = y
-        y = self.residual_1(y)
-        y = self.cnn_2(y)
+        y = self.cnn_64(y)
         y += shortcut
         y = relu(y)
         shortcut = y
-        y = self.residual_1(y)
-        y = self.cnn_2(y)
+        y = self.cnn_64(y)
         y += shortcut
         y = relu(y)
+        y = self.cnn_64_128(y)
+        shortcut = y
+        y = self.cnn_128(y)
+        y += shortcut
+        y = relu(y)
+        shortcut = y
+        y = self.cnn_128(y)
+        y += shortcut
+        y = relu(y)
+        # y = self.cnn_128_256(y)
+        # shortcut = y
+        # y = self.cnn_256(y)
+        # y += shortcut
+        # y = relu(y)
         y = self.linear(y)
+        # y = self.residual_1(y)
+        # y = self.cnn_2(y)
+        # y += shortcut
+        # y = relu(y)
+        # shortcut = y
+        # y = self.residual_1(y)
+        # y = self.cnn_2(y)
+        # y += shortcut
+        # y = relu(y)
+        # y = self.linear(y)
+        # shortcut = y
+        # y = self.residual_1(y)
+        # y = self.cnn_2(y)
+        # y += shortcut
+        # y = relu(y)
+        # y = self.linear(y)
         return y

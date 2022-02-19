@@ -14,14 +14,14 @@ def train_with_random():
     policy_kwargs = dict(
         # features_extractor_class=CustomCNN,
         features_extractor_class=ResnetFeatureExtractor,
-        features_extractor_kwargs=dict(features_dim=64*64*2),
+        features_extractor_kwargs=dict(features_dim=config.model_output_dim),
     )
     env = SelfPlayEnv(opponent_type=OpponentType.RANDOM, verbose=0)
     model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
     eval_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
         eval_freq=1000,
-        best_model_save_path=config.TMPMODELDIR648,
+        best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,
         render=False,
