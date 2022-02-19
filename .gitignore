@@ -5,6 +5,7 @@ zoo
 zoo/modelpool/*
 zoo/tmp/*
 logs/*
+.amlignore*
 
 __pycache__/
 *.py[cod]
