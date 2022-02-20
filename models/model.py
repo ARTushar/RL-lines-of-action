@@ -154,8 +154,6 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
             nn.MaxPool2d(kernel_size=(3, 3), stride=1)
         )
         
-        
-
     @staticmethod
     def conv2d(in_channels: int, out_channels: int, kernel_size: Tuple[int, int] = (3, 3), padding: Tuple[int, int] = (1, 1)):
         return nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, padding=padding)
