@@ -46,12 +46,12 @@ class LACEnv(gym.Env):
     def step(self, action):
         move: MOVE = self.action_to_move(action, self.engine.board)
         reward = self.engine.step(move[0], move[1])
-        observation = self.create_observation(self.engine.board, self.engine.get_all_current_player_moves(), self.engine.current_player)
+        observation = self.create_observation()
         return observation, reward, self.engine.done, {'state': self.engine.board}
 
     def reset(self):
         self.engine.reset_game()
-        return self.create_observation(self.engine.board, self.engine.get_all_current_player_moves(), self.engine.current_player)
+        return self.create_observation()
 
     def render(self, mode="human"):
         clear()
@@ -163,14 +163,27 @@ class LACEnv(gym.Env):
         move = LACEnv.direction_to_move(sel, direction, board)
         return move
 
-    @staticmethod
-    def create_observation(board, all_valid_moves, current_player):
-        all_frames = [np.array(board, dtype='float32')]
-        for pos, valid_moves in all_valid_moves:
-            all_frames.append(LACEnv.get_valid_move_frame(pos, valid_moves, current_player))
+    def current_player_positions(self):
+        if self.engine.current_player == self.engine.first_player:
+            return self.engine.first_player_token_pos
+        return self.engine.second_player_token_pos
 
-        for i in range(12 - len(all_valid_moves)):
-            all_frames.append(np.zeros((len(board), len(board)), dtype='float32'))
+    @staticmethod
+    def index_to_pos(index: int) -> Tuple[int, int]:
+        return index // LACEnv.grid_len, index % LACEnv.grid_len
+
+    def create_observation(self):
+        all_frames = [np.array(self.engine.board, dtype='float32')]
+        current_player_pos = self.current_player_positions()
+
+        for player_no, pos_index in enumerate(current_player_pos):
+            if pos_index == -1:  # not in the board anymore
+                all_frames.append(np.zeros(self.grid_shape))
+            else:
+                pos = self.index_to_pos(pos_index)
+                valid_moves = self.engine.get_valid_moves(self.engine.board, pos[0], pos[1])
+                if len(valid_moves) != 0:
+                    all_frames.append(LACEnv.get_valid_move_frame(pos, valid_moves, self.engine.current_player))
 
         final_frame = np.stack(all_frames, axis=0)
         # print('shape of frame: ', final_frame.shape)
