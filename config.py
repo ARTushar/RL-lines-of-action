@@ -1,8 +1,8 @@
 LOGDIR = "logs"
 RESULTSPATH = 'viz/results.csv'
-TMPMODELDIR = "zoo/tmp_64_8"
+TMPMODELDIR = "zoo/tmp_12_8"
 # TMPMODELDIR = 'zoo/tmp'
-MODELPOOLDIR = "zoo/modelpool_64_8"
+MODELPOOLDIR = "zoo/modelpool_12_8"
 # MODELPOOLDIR = "zoo/modelpool"
 
 MODELDIR = "zoo"

@@ -182,8 +182,8 @@ class Game:
 
     def _create_board(self):
         board: BOARD = []
-        first_player_no = 1
-        second_player_no = 1
+        first_player_no = 0
+        second_player_no = 0
         for i in range(self.board_size):
             board.append([])
             for j in range(self.board_size):

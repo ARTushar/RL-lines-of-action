@@ -35,20 +35,22 @@ class CustomNetwork(nn.Module):
     def __init__(
             self,
             feature_dim: int = 128*8*8,
-            last_layer_dim_pi: int = 64*8,
-            last_layer_dim_vf: int = 64*8
+            last_layer_dim_pi: int = 12*8,
+            last_layer_dim_vf: int = 12*8
     ):
         super(CustomNetwork, self).__init__()
         self.latent_dim_pi = last_layer_dim_pi
         self.latent_dim_vf = last_layer_dim_vf
+        mid_layer_dim_pi: int = 64*8
+        mid_layer_dim_vf: int = 64*8
 
         self.policy_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_pi), nn.ReLU(),
-            nn.Linear(last_layer_dim_pi, last_layer_dim_pi), nn.ReLU()
+            nn.Linear(feature_dim, mid_layer_dim_pi), nn.ReLU(),
+            nn.Linear(mid_layer_dim_pi, last_layer_dim_pi), nn.ReLU()
         )
         self.value_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_vf), nn.ReLU(),
-            nn.Linear(last_layer_dim_vf, last_layer_dim_vf), nn.ReLU()
+            nn.Linear(feature_dim, mid_layer_dim_vf), nn.ReLU(),
+            nn.Linear(mid_layer_dim_vf, last_layer_dim_vf), nn.ReLU()
         )
 
     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:

@@ -31,6 +31,7 @@ class LACEnv(gym.Env):
     grid_len = 8
     valid_cell_value = 0.5
     total_valid_directions = 8
+    total_players = 12
 
     def __init__(self, verbose: int = 1):
         super(LACEnv, self).__init__()
@@ -40,7 +41,7 @@ class LACEnv(gym.Env):
         self.grid_shape = (self.grid_len, self.grid_len)
         self.engine = Game(self.grid_len, verbose=verbose)
 
-        self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.num_squares * self.total_valid_directions)
+        self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.total_players * self.total_valid_directions)
         self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)
 
     def step(self, action):
@@ -140,26 +141,23 @@ class LACEnv(gym.Env):
         if direction is MoveDirection.RIGHT_DOWN:
             return selected, (selected[0] + left_diagonal_cells, selected[1] + left_diagonal_cells)
 
-    @staticmethod
-    def move_to_action(move: MOVE) -> int:
-        grid_len = LACEnv.grid_len
-        # total_squares = grid_len * grid_len
+    def move_to_action(self, move: MOVE) -> int:
+        selected_index = self.engine.get_pos_index(self.engine.board, move[0][0], move[0][1])
+        player_no = self.engine.board_pos_token_no[selected_index]
 
-        selected = move[0][0] * grid_len + move[0][1]
-        # target = move[1][0] * grid_len + move[1][1]
-        direction = LACEnv.move_to_direction(move)
+        direction = self.move_to_direction(move)
         assert direction is not MoveDirection.INVALID
 
-        return selected * LACEnv.total_valid_directions + direction.value
+        return player_no * self.total_valid_directions + direction.value
 
-    @staticmethod
-    def action_to_move(action: int, board) -> MOVE:
-        grid_len = LACEnv.grid_len
-        # total_squares = grid_len * grid_len
+    def action_to_move(self, action: int, board) -> MOVE:
 
-        selected, direction = action // LACEnv.total_valid_directions, action % LACEnv.total_valid_directions
+        player_no, direction = action // self.total_valid_directions, action % self.total_valid_directions
         direction = MoveDirection(direction)
-        sel = selected // grid_len, selected % grid_len
+
+        current_player_pos = self.current_player_positions()
+        sel_index = current_player_pos[player_no]
+        sel = self.index_to_pos(sel_index)
         move = LACEnv.direction_to_move(sel, direction, board)
         return move
 

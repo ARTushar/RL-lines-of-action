@@ -62,8 +62,8 @@ def continue_train():
 
 
 if __name__ == '__main__':
-    # train_with_random()
-    evaluate_trained_model()
+    train_with_random()
+    # evaluate_trained_model()
     # continue_train()
 
 
