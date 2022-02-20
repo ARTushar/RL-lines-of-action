@@ -272,7 +272,7 @@ class Game:
             if col - i < 0 or board[row][col - i] == opposition_type:
                 val_direction['left_row'] = False
 
-            if col + i >= len(board) or board[row][col] == opposition_type:
+            if col + i >= len(board) or board[row][col+i] == opposition_type:
                 val_direction['right_row'] = False
 
         if col-row_count < 0 or board[row][col-row_count] == player_type:
@@ -484,4 +484,21 @@ class Game:
         total_coc, max_size = Game.get_total_coc(board, player_type)
         return 1 - total_coc/12
 
+
+def test_valid_moves():
+    board = [
+        [0, 0, 0, -1, -1, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0],
+        [0, -1, 0, -1, -1, 0, 0, 1],
+        [1, 0, -1, 0, 0, 0, 0, 0],
+        [1, 0, -1, 0, 0, 0, 0, 1],
+        [1, 0, 0, -1, 0, -1, -1, 1],
+        [0, 1, 0, 0, -1, 0, 0, 0],
+        [1, 1, 0, 0, 1, 0, 0, 0]]
+    all_valid_moves = Game.get_valid_moves(board, 5, 0)
+    print(all_valid_moves)
+
+
+if __name__ == "__main__":
+    test_valid_moves()
 

@@ -10,6 +10,7 @@ import gym
 import numpy as np
 from utils.helpers import load_best_model, load_random_model
 
+
 class Agent(ABC):
     def __init__(self, player_no: int, verbose=1):
         self.player_no = player_no
