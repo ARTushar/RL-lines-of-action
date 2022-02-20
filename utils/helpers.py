@@ -84,3 +84,26 @@ def get_model_generation_stats():
         best_reward = float(stats[4])
         timesteps = int(stats[5])
     return generation, best_rules_based, best_reward, timesteps
+
+
+def board_states_to_move(board1, board2):
+    pos1, pos2 = (0, 0), (0, 0)
+    player = 'e'
+    for i in range(len(board1)):
+        row1 = list(board1[i].split(' '))
+        row2 = list(board2[i].split(' '))
+        for j in range(len(row1)):
+            if  row1[j] != row2[j]:
+                if row1[j] == 'e':
+                    pos2 = (i, j)
+                    player = row2[j]
+                else:
+                    pos1 = (i, j)
+                    player = row1[j]
+
+    move = {
+        'from': pos1,
+        'to': pos2,
+        'player': player
+    }
+    return move
