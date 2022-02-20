@@ -51,7 +51,6 @@ class SelfPlayCallback(EvalCallback):
       # if rank == 0:
       #   logger.info("Eval num_timesteps={}, episode_reward={:.2f} +/- {:.2f}".format(self.num_timesteps, av_reward, std_reward))
       #   logger.info("Total episodes ran={}".format(total_episodes))
-      print('last mean reward: ', self.last_mean_reward)
       print('new best mean reward: ', self.best_mean_reward)
       # #compare the latest reward against the threshold
       if result and self.best_mean_reward > self.threshold:

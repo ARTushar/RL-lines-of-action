@@ -19,8 +19,9 @@ def create_custom_policy_ppo_model(env):
 
 def load_model(model_file, env):
     if os.path.isfile(model_file):
-        ppo_model = PPO.load(model_file)
+        ppo_model = PPO.load(model_file, env=env)
     else:
+        print('creating new model in load model function')
         ppo_model = create_custom_policy_ppo_model(env)
         ppo_model.save(model_file)
     return ppo_model
@@ -49,7 +50,7 @@ def load_best_model(env):
     model_name = get_best_model_name(config.MODELPOOLDIR)
     # print('best model name:', model_name)
     if model_name is None:
-        model_path = os.path.join(config.MODELPOOLDIR, 'base.zip')
+        model_path = os.path.join(config.MODELPOOLDIR, 'best_model.zip')
     else:
         model_path = os.path.join(config.MODELPOOLDIR, model_name)
     model = load_model(model_path, env)

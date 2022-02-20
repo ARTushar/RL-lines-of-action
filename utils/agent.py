@@ -3,6 +3,7 @@ from subprocess import Popen, PIPE
 from environments.lines_of_action.lac import LACEnv
 import gym
 import numpy as np
+from stable_baselines3.common.policies import obs_as_tensor
 from utils.helpers import load_best_model, load_random_model
 
 class Agent(ABC):
@@ -84,8 +85,20 @@ class ModelAgent(Agent):
         else:
             self.model = load_random_model(env)
 
+    def predict_proba(self, model, state):
+        obs = obs_as_tensor(state, model.policy.device)
+        print('obs: ', obs)
+        dis = model.policy.get_distribution(obs)
+        print('distribution: ', dis)
+        probs = dis.distribution.probs
+        print('probs: ', probs)
+        probs_np = probs.detach().numpy()
+        return probs_np
+
     def choose_action(self, env: gym.Env, choose_best_action: bool, observation = None):
-        # action_probs = self.model.action_probability(observation)
+        # print('choosing agent action....')
+        # action_space = self.predict_proba(self.model, observation)
+        # print(action_space)
         # value = self.model.policy_pi.value(np.array([observation]))[0]
         # print(f'Value {value:.2f}')
         # action = np.argmax(action_probs)

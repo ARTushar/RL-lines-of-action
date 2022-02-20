@@ -21,7 +21,7 @@ def train_model(env, continue_from_last_checkpoint=False):
     )
     if continue_from_last_checkpoint:
         # model = load_best_model(env)
-        model_file = os.path.join(config.MODELPOOLDIR, 'best_model_tushar.zip')
+        model_file = os.path.join(config.MODELPOOLDIR, 'best_model-copy.zip')
         model = PPO.load(model_file, env=env)
     else:
         model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, verbose=0)
@@ -41,17 +41,18 @@ def train_model(env, continue_from_last_checkpoint=False):
     eval_actual_callback = EvalCallback(
         eval_env=Monitor(SelfPlayEnv(opponent_type=OpponentType.RANDOM)),
         eval_freq=config.eval_freq,
+        n_eval_episodes=config.n_eval_episodes,
         best_model_save_path=config.TMPMODELDIR,
         log_path=config.LOGDIR,
         deterministic=True,
         render=False,
-        verbose=1
+        verbose=0
     )
     callback_args['callback_on_new_best'] = eval_actual_callback
 
-    eval_callback = SelfPlayCallback(OpponentType.PREV_BEST, config.threshold, **callback_args)
+    eval_callback = SelfPlayCallback(OpponentType.RANDOM, config.threshold, **callback_args)
 
-    model.learn(total_timesteps=100000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
+    model.learn(total_timesteps=1000000, callback=[eval_callback], reset_num_timesteps=False, tb_log_name="tb")
 
     print('saving the model....')
     model.save(os.path.join(config.MODELPOOLDIR, 'model.zip'))
