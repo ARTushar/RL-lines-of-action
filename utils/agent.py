@@ -96,9 +96,15 @@ class ModelAgent(Agent):
         return probs_np
 
     def choose_action(self, env: gym.Env, choose_best_action: bool, observation = None):
-        # print('choosing agent action....')
-        # action_space = self.predict_proba(self.model, observation)
-        # print(action_space)
+        print('choosing agent action....')
+        # action_space = self.model.policy.predict_values(observation)
+        obs = obs_as_tensor(observation, self.model.policy.device)
+        action_probs = self.model.policy.predict_values(obs)
+        print('action probs: ', action_probs)
+        # actions, values, log_probs = self.model.policy.forward(obs)
+        # print('actions: \n', actions)
+        # print('\nvalues: \n', values)
+        # print('\nlog_probs: \n', log_probs)
         # value = self.model.policy_pi.value(np.array([observation]))[0]
         # print(f'Value {value:.2f}')
         # action = np.argmax(action_probs)

@@ -46,7 +46,6 @@ def train_model(env, continue_from_last_checkpoint=False):
         log_path=config.LOGDIR,
         deterministic=True,
         render=False,
-        verbose=0
     )
     callback_args['callback_on_new_best'] = eval_actual_callback
 
