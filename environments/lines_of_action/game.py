@@ -80,11 +80,6 @@ class Game:
                 print("move by: ", self._get_opposition(self.current_player))
                 print("Won by: ", self.winner)
             if self.winner == self.current_player:
-<<<<<<< HEAD
-                if self.verbose >= 1:
-                    print("Won by own: ", self.current_player)
-=======
->>>>>>> 52751269dbe958833b9b0ff66bc88f2737d60b69
                 reward = self.get_winning_reward()
                 self.opponent_reward = -reward
             else:

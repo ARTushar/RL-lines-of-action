@@ -8,7 +8,6 @@ import config
 from environments.lines_of_action.lac import LACEnv
 import gym
 import numpy as np
-from stable_baselines3.common.policies import obs_as_tensor
 from utils.helpers import load_best_model, load_random_model
 
 class Agent(ABC):

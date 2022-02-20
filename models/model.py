@@ -9,7 +9,7 @@ from torch.nn.functional import relu
 
 
 class CustomCNN(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.Space, features_dim: int = 4096):
+    def __init__(self, observation_space: gym.Space, features_dim: int = 128*8*8):
         super().__init__(observation_space, features_dim)
         # assume channel first
         n_input_channels = observation_space.shape[0]
@@ -34,7 +34,7 @@ class CustomCNN(BaseFeaturesExtractor):
 class CustomNetwork(nn.Module):
     def __init__(
             self,
-            feature_dim: int = 4096,
+            feature_dim: int = 128*8*8,
             last_layer_dim_pi: int = 12*8,
             last_layer_dim_vf: int = 12*8
     ):
@@ -90,7 +90,7 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
 
 
 class ResnetFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.Space, features_dim: int = 4096):
+    def __init__(self, observation_space: gym.Space, features_dim: int = 128*8*8):
         super().__init__(observation_space, features_dim)
         self.input_channels = observation_space.shape[0]
         self.cnn = nn.Sequential(
@@ -110,7 +110,7 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
         # self.residual_2 = self.create_residual_1(in_channels=128, out_channels=128)
         self.linear = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(512 * 8 * 8, features_dim),
+            nn.Linear(128 * 8 * 8, features_dim),
             nn.ReLU()
         )
 
@@ -150,20 +150,6 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
             nn.BatchNorm2d(num_features=256),
         )
 
-        self.cnn_256_512 = nn.Sequential(
-            self.conv2d(in_channels=256, out_channels=512),
-            nn.BatchNorm2d(num_features=512),
-            nn.ReLU(),
-        )
-
-        self.cnn_512 = nn.Sequential(
-            self.conv2d(in_channels=512, out_channels=512),
-            nn.BatchNorm2d(num_features=512),
-            nn.ReLU(),
-            self.conv2d(in_channels=512, out_channels=512),
-            nn.BatchNorm2d(num_features=512),
-        )
-
         self.maxpool = nn.Sequential(
             nn.MaxPool2d(kernel_size=(3, 3), stride=1)
         )
@@ -189,7 +175,6 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
         y = self.cnn_64(y)
         y += shortcut
         y = relu(y)
-
         y = self.cnn_64_128(y)
         shortcut = y
         y = self.cnn_128(y)
@@ -199,26 +184,15 @@ class ResnetFeatureExtractor(BaseFeaturesExtractor):
         y = self.cnn_128(y)
         y += shortcut
         y = relu(y)
-
-        y = self.cnn_128_256(y)
-        shortcut = y
-        y = self.cnn_256(y)
-        y += shortcut
-        y = relu(y)
-        shortcut = y
-        y = self.cnn_256(y)
-        y += shortcut
-        y = relu(y)
-
-        y = self.cnn_256_512(y)
-        shortcut = y
-        y = self.cnn_512(y)
-        y += shortcut
-        y = relu(y)
-        shortcut = y
-        y = self.cnn_512(y)
-        y += shortcut
-        y = relu(y)
+        # y = self.cnn_128_256(y)
+        # shortcut = y
+        # y = self.cnn_256(y)
+        # y += shortcut
+        # y = relu(y)
+        # shortcut = y
+        # y = self.cnn_256(y)
+        # y += shortcut
+        # y = relu(y)
 
         # y = self.maxpool(y)
 

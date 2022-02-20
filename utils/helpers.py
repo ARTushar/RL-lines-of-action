@@ -19,9 +19,8 @@ def create_custom_policy_ppo_model(env):
 
 def load_model(model_file, env):
     if os.path.isfile(model_file):
-        ppo_model = PPO.load(model_file, env=env)
+        ppo_model = PPO.load(model_file)
     else:
-        print('creating new model in load model function')
         ppo_model = create_custom_policy_ppo_model(env)
         ppo_model.save(model_file)
     return ppo_model
@@ -84,28 +83,3 @@ def get_model_generation_stats():
         best_reward = float(stats[4])
         timesteps = int(stats[5])
     return generation, best_rules_based, best_reward, timesteps
-
-
-def board_states_to_move(board1, board2):
-    pos1, pos2 = (0, 0), (0, 0)
-    player = 'e'
-    board1 = board1.split('\n')
-    board2 = board2.split('\n')
-    for i in range(len(board1)):
-        row1 = list(board1[i].split(' '))
-        row2 = list(board2[i].split(' '))
-        for j in range(len(row1)):
-            if  row1[j] != row2[j]:
-                if row2[j] == 'e':
-                    pos1 = (i, j)
-                    player = row1[j]
-                else:
-                    pos2 = (i, j)
-                    player = row2[j]
-
-    move = {
-        'from': pos1,
-        'to': pos2,
-        'player': player
-    }
-    return move

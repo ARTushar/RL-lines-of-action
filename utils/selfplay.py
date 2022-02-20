@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from lib2to3.pgen2.token import OP
-from tabnanny import verbose
 
 import numpy as np
 from stable_baselines3.common.env_checker import check_env
@@ -75,10 +74,6 @@ class SelfPlayEnv(LACEnv):
         if self.verbose >= 1 and done:
             if self.engine.winner == self.agent_player_num:
                 print("Won by Agent as player: ", self.agent_player_num)
-
-        if self.verbose >= 1 and done:
-            if self.engine.winner == self.agent_player_num:
-                print('Agent have won. agent player num: ', self.agent_player_num)
 
         if not done:
             observation, reward, done, info = self.continue_game(observation)

@@ -7,11 +7,10 @@ MODELPOOLDIR = "zoo/modelpool_12_8"
 
 MODELDIR = "zoo"
 
-model_output_dim = 256*8*8
-feature_dim = 4096
+model_output_dim = 128*8*8
 
 opponent_type = 'best'
 eval_freq = 1000
-n_eval_episodes = 100
+n_eval_episodes = 5
 threshold = .2
 
