@@ -30,7 +30,6 @@ BOARD = List[List[int]]
 class Game:
     def __init__(self, board_size=8, verbose=1):
         self.board_size = board_size
-        self.board = self._create_board()
         self.first_player = -1  # -1 -> black
         self.second_player = 1  # 1 -> white , 0 -> empty
         self.current_player = self.first_player
@@ -42,6 +41,13 @@ class Game:
         self.verbose = verbose
         # If is needed to access
         self.opponent_reward = None
+
+        # vars needed to keep track each player's positions
+        self.first_player_token_pos = [-1] * 13  # keep track of index
+        self.second_player_token_pos = [-1] * 13
+        self.board_pos_token_no = [-1] * self.board_size * self.board_size
+
+        self.board = self._create_board()
 
     def step(self, selected_pos, target_pos):
         is_valid_move = self.is_valid_move(self.board, selected_pos, target_pos, self.current_player)
@@ -144,6 +150,25 @@ class Game:
 
     def update_board(self, selected_pos, target_pos):
         player_type = self.board[selected_pos[0]][selected_pos[1]]
+
+        selected_index = self.get_pos_index(self.board, selected_pos[0], selected_pos[1])
+        target_index = self.get_pos_index(self.board, target_pos[0], target_pos[1])
+
+        player_no = self.board_pos_token_no[selected_index]
+        opposition_no = self.board_pos_token_no[target_index]
+
+        if player_type == self.first_player:
+            self.first_player_token_pos[player_no] = target_index
+            if opposition_no != 0:
+                self.second_player_token_pos[opposition_no] = -1
+        else:
+            self.second_player_token_pos[player_no] = target_index
+            if opposition_no != 0:
+                self.first_player_token_pos[opposition_no] = -1
+
+        self.board_pos_token_no[target_index] = player_no
+        self.board_pos_token_no[selected_index] = 0
+
         self.board[selected_pos[0]][selected_pos[1]] = 0
         self.board[target_pos[0]][target_pos[1]] = player_type
 
@@ -158,15 +183,24 @@ class Game:
 
     def _create_board(self):
         board: BOARD = []
+        first_player_no = 1
+        second_player_no = 1
         for i in range(self.board_size):
             board.append([])
             for j in range(self.board_size):
                 if (i == 0 or i == self.board_size - 1) and j != 0 and j != self.board_size-1:
                     board[i].append(-1)
+                    self.first_player_token_pos[first_player_no] = i * self.board_size + j
+                    self.board_pos_token_no[i * self.board_size + j] = first_player_no
+                    first_player_no += 1
                 elif (j == 0 or j == self.board_size - 1) and i != 0 and i != self.board_size-1:
                     board[i].append(1)
+                    self.second_player_token_pos[second_player_no] = i * self.board_size + j
+                    self.board_pos_token_no[i * self.board_size + j] = second_player_no
+                    second_player_no += 1
                 else:
                     board[i].append(0)
+                    self.board_pos_token_no[i * self.board_size + j] = 0
         return board
 
     @staticmethod

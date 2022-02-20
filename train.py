@@ -26,6 +26,7 @@ def train_with_random():
         log_path=config.LOGDIR,
         deterministic=True,
         render=False,
+        n_eval_episodes=100
     )
 
     model.learn(total_timesteps=int(1e9), callback=[eval_callback], tb_log_name='tb')

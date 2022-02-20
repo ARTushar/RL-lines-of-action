@@ -72,6 +72,9 @@ class SelfPlayEnv(LACEnv):
 
     def step(self, action):
         observation, reward, done, info = super(SelfPlayEnv, self).step(action)
+        if self.verbose >= 1 and done:
+            if self.engine.winner == self.agent_player_num:
+                print("Won by Agent as player: ", self.agent_player_num)
 
         if self.verbose >= 1 and done:
             if self.engine.winner == self.agent_player_num:

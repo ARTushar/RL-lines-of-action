@@ -31,6 +31,7 @@ class LACEnv(gym.Env):
     grid_len = 8
     valid_cell_value = 0.5
     total_valid_directions = 8
+    total_players = 12
 
     def __init__(self, verbose: int = 1):
         super(LACEnv, self).__init__()
@@ -40,18 +41,18 @@ class LACEnv(gym.Env):
         self.grid_shape = (self.grid_len, self.grid_len)
         self.engine = Game(self.grid_len, verbose=verbose)
 
-        self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.num_squares * self.total_valid_directions)
+        self.action_space: gym.spaces.Space = gym.spaces.Discrete(self.total_players * self.total_valid_directions)
         self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)
 
     def step(self, action):
         move: MOVE = self.action_to_move(action, self.engine.board)
         reward = self.engine.step(move[0], move[1])
-        observation = self.create_observation(self.engine.board, self.engine.get_all_current_player_moves(), self.engine.current_player)
+        observation = self.create_observation()
         return observation, reward, self.engine.done, {'state': self.engine.board}
 
     def reset(self):
         self.engine.reset_game()
-        return self.create_observation(self.engine.board, self.engine.get_all_current_player_moves(), self.engine.current_player)
+        return self.create_observation()
 
     def render(self, mode="human"):
         clear()
@@ -140,37 +141,47 @@ class LACEnv(gym.Env):
         if direction is MoveDirection.RIGHT_DOWN:
             return selected, (selected[0] + left_diagonal_cells, selected[1] + left_diagonal_cells)
 
-    @staticmethod
-    def move_to_action(move: MOVE) -> int:
-        grid_len = LACEnv.grid_len
-        # total_squares = grid_len * grid_len
+    def move_to_action(self, move: MOVE) -> int:
+        selected_index = self.engine.get_pos_index(self.engine.board, move[0][0], move[0][1])
+        player_no = self.engine.board_pos_token_no[selected_index]
 
-        selected = move[0][0] * grid_len + move[0][1]
-        # target = move[1][0] * grid_len + move[1][1]
-        direction = LACEnv.move_to_direction(move)
+        direction = self.move_to_direction(move)
         assert direction is not MoveDirection.INVALID
 
-        return selected * LACEnv.total_valid_directions + direction.value
+        return (player_no-1) * self.total_valid_directions + direction.value
 
-    @staticmethod
-    def action_to_move(action: int, board) -> MOVE:
-        grid_len = LACEnv.grid_len
-        # total_squares = grid_len * grid_len
+    def action_to_move(self, action: int, board) -> MOVE:
 
-        selected, direction = action // LACEnv.total_valid_directions, action % LACEnv.total_valid_directions
+        player_no, direction = action // self.total_valid_directions, action % self.total_valid_directions
+        player_no += 1
         direction = MoveDirection(direction)
-        sel = selected // grid_len, selected % grid_len
-        move = LACEnv.direction_to_move(sel, direction, board)
+
+        current_player_pos = self.current_player_positions()
+        sel_index = current_player_pos[player_no]
+        sel = self.index_to_pos(sel_index)
+        move = self.direction_to_move(sel, direction, board)
         return move
 
-    @staticmethod
-    def create_observation(board, all_valid_moves, current_player):
-        all_frames = [np.array(board, dtype='float32')]
-        for pos, valid_moves in all_valid_moves:
-            all_frames.append(LACEnv.get_valid_move_frame(pos, valid_moves, current_player))
+    def current_player_positions(self):
+        if self.engine.current_player == self.engine.first_player:
+            return self.engine.first_player_token_pos
+        return self.engine.second_player_token_pos
 
-        for i in range(12 - len(all_valid_moves)):
-            all_frames.append(np.zeros((len(board), len(board)), dtype='float32'))
+    @staticmethod
+    def index_to_pos(index: int) -> Tuple[int, int]:
+        return index // LACEnv.grid_len, index % LACEnv.grid_len
+
+    def create_observation(self):
+        all_frames = [np.array(self.engine.board, dtype='float32')]
+        current_player_pos = self.current_player_positions()
+
+        for pos_index in current_player_pos[1:]:
+            if pos_index == -1:  # not in the board anymore
+                all_frames.append(np.zeros(self.grid_shape))
+            else:
+                pos = self.index_to_pos(pos_index)
+                valid_moves = self.engine.get_valid_moves(self.engine.board, pos[0], pos[1])
+                all_frames.append(self.get_valid_move_frame(pos, valid_moves, self.engine.current_player))
 
         final_frame = np.stack(all_frames, axis=0)
         # print('shape of frame: ', final_frame.shape)
