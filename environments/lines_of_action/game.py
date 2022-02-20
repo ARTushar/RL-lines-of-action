@@ -30,7 +30,6 @@ BOARD = List[List[int]]
 class Game:
     def __init__(self, board_size=8, verbose=1):
         self.board_size = board_size
-        self.board = self._create_board()
         self.first_player = -1  # -1 -> black
         self.second_player = 1  # 1 -> white , 0 -> empty
         self.current_player = self.first_player
@@ -44,14 +43,16 @@ class Game:
         self.opponent_reward = None
 
         # vars needed to keep track each player's positions
-        self.first_player_token_pos = [-1] * 12  # keep track of index
-        self.second_player_token_pos = [-1] * 12
+        self.first_player_token_pos = [-1] * 13  # keep track of index
+        self.second_player_token_pos = [-1] * 13
         self.board_pos_token_no = [-1] * self.board_size * self.board_size
+
+        self.board = self._create_board()
 
     def step(self, selected_pos, target_pos):
         is_valid_move = self.is_valid_move(self.board, selected_pos, target_pos, self.current_player)
         if not is_valid_move:
-            if self.verbose >= 1:
+            if self.verbose >= 2:
                 print("Invalid move by: ", self.current_player)
             self.done = True
             self.winner = self._get_opposition(self.current_player)
@@ -166,7 +167,7 @@ class Game:
                 self.first_player_token_pos[opposition_no] = -1
 
         self.board_pos_token_no[target_index] = player_no
-        self.board_pos_token_no[selected_pos] = 0
+        self.board_pos_token_no[selected_index] = 0
 
         self.board[selected_pos[0]][selected_pos[1]] = 0
         self.board[target_pos[0]][target_pos[1]] = player_type
@@ -182,8 +183,8 @@ class Game:
 
     def _create_board(self):
         board: BOARD = []
-        first_player_no = 0
-        second_player_no = 0
+        first_player_no = 1
+        second_player_no = 1
         for i in range(self.board_size):
             board.append([])
             for j in range(self.board_size):

@@ -148,17 +148,18 @@ class LACEnv(gym.Env):
         direction = self.move_to_direction(move)
         assert direction is not MoveDirection.INVALID
 
-        return player_no * self.total_valid_directions + direction.value
+        return (player_no-1) * self.total_valid_directions + direction.value
 
     def action_to_move(self, action: int, board) -> MOVE:
 
         player_no, direction = action // self.total_valid_directions, action % self.total_valid_directions
+        player_no += 1
         direction = MoveDirection(direction)
 
         current_player_pos = self.current_player_positions()
         sel_index = current_player_pos[player_no]
         sel = self.index_to_pos(sel_index)
-        move = LACEnv.direction_to_move(sel, direction, board)
+        move = self.direction_to_move(sel, direction, board)
         return move
 
     def current_player_positions(self):
@@ -174,14 +175,13 @@ class LACEnv(gym.Env):
         all_frames = [np.array(self.engine.board, dtype='float32')]
         current_player_pos = self.current_player_positions()
 
-        for player_no, pos_index in enumerate(current_player_pos):
+        for pos_index in current_player_pos[1:]:
             if pos_index == -1:  # not in the board anymore
                 all_frames.append(np.zeros(self.grid_shape))
             else:
                 pos = self.index_to_pos(pos_index)
                 valid_moves = self.engine.get_valid_moves(self.engine.board, pos[0], pos[1])
-                if len(valid_moves) != 0:
-                    all_frames.append(LACEnv.get_valid_move_frame(pos, valid_moves, self.engine.current_player))
+                all_frames.append(self.get_valid_move_frame(pos, valid_moves, self.engine.current_player))
 
         final_frame = np.stack(all_frames, axis=0)
         # print('shape of frame: ', final_frame.shape)
