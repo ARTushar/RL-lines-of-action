@@ -1,6 +1,5 @@
 from collections import deque
-from typing import List
-
+from typing import List, Tuple
 
 pieceSquareTable8: list = [
     -80, -25, -20, -20, -20, -20, -25, -80,
@@ -78,10 +77,14 @@ class Game:
         self.winner = self.get_winner(self._get_opposition(self.current_player))
         if self.winner is not None:
             if self.verbose >= 1:
-                print("Won by: ", self.current_player)
+                print("move by: ", self._get_opposition(self.current_player))
+                print("Won by: ", self.winner)
             if self.winner == self.current_player:
+<<<<<<< HEAD
                 if self.verbose >= 1:
                     print("Won by own: ", self.current_player)
+=======
+>>>>>>> 52751269dbe958833b9b0ff66bc88f2737d60b69
                 reward = self.get_winning_reward()
                 self.opponent_reward = -reward
             else:
@@ -252,7 +255,7 @@ class Game:
         return row_count, col_count, left_diagonal_count, right_diagonal_count
 
     @staticmethod
-    def get_valid_moves(board, row, col):
+    def get_valid_moves(board, row, col) -> List[Tuple[int, int]]:
         valid_moves = []
         player_type = board[row][col]
         opposition_type = Game._get_opposition(player_type)
@@ -341,7 +344,7 @@ class Game:
         return self.get_all_moves(self.board, self.current_player)
 
     @staticmethod
-    def get_all_moves(board: BOARD, player_type: int):
+    def get_all_moves(board: BOARD, player_type: int) -> List[Tuple[Tuple[int, int], List[Tuple[int, int]]]]:
         all_valid_moves = []
         for i, row in enumerate(board):
             for j, val in enumerate(row):

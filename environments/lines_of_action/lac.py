@@ -45,7 +45,7 @@ class LACEnv(gym.Env):
         self.observation_space: gym.spaces.Space = gym.spaces.Box(-1, 1, (13,) + self.grid_shape)
 
     def step(self, action):
-        move: MOVE = self.action_to_move(action, self.engine.board)
+        move: MOVE = self.action_to_move(action)
         reward = self.engine.step(move[0], move[1])
         observation = self.create_observation()
         return observation, reward, self.engine.done, {'state': self.engine.board}
@@ -150,7 +150,7 @@ class LACEnv(gym.Env):
 
         return (player_no-1) * self.total_valid_directions + direction.value
 
-    def action_to_move(self, action: int, board) -> MOVE:
+    def action_to_move(self, action: int) -> MOVE:
 
         player_no, direction = action // self.total_valid_directions, action % self.total_valid_directions
         player_no += 1
@@ -159,13 +159,23 @@ class LACEnv(gym.Env):
         current_player_pos = self.current_player_positions()
         sel_index = current_player_pos[player_no]
         sel = self.index_to_pos(sel_index)
-        move = self.direction_to_move(sel, direction, board)
+        move = self.direction_to_move(sel, direction, self.engine.board)
         return move
 
     def current_player_positions(self):
         if self.engine.current_player == self.engine.first_player:
             return self.engine.first_player_token_pos
         return self.engine.second_player_token_pos
+
+    def get_legal_actions(self) -> np.ndarray:
+        all_valid_moves = self.engine.get_all_current_player_moves()
+        actions = np.zeros((1, self.action_space.n))
+
+        for pos, valid_moves in all_valid_moves:
+            for move in valid_moves:
+                action = self.move_to_action((pos, move))
+                actions[0, action] = 1
+        return actions
 
     @staticmethod
     def index_to_pos(index: int) -> Tuple[int, int]:

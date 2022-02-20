@@ -46,13 +46,13 @@ def get_best_model_name(dir):
     return model_name
 
 
-def load_best_model(env):
-    model_name = get_best_model_name(config.MODELPOOLDIR)
+def load_best_model(env, directory=config.MODELPOOLDIR):
+    model_name = get_best_model_name(directory)
     # print('best model name:', model_name)
     if model_name is None:
-        model_path = os.path.join(config.MODELPOOLDIR, 'best_model.zip')
+        model_path = os.path.join(directory, 'best_model.zip')
     else:
-        model_path = os.path.join(config.MODELPOOLDIR, model_name)
+        model_path = os.path.join(directory, model_name)
     model = load_model(model_path, env)
     return model
 
